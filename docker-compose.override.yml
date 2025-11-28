@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Override for development with hot reload
+  backend:
+    environment:
+      NODE_ENV: development
+      MONGO_ROOT_USERNAME: admin
+      MONGO_ROOT_PASSWORD: password123
+      MONGO_DATABASE: crudapp
+      MONGO_URI: mongodb://admin:password123@mongodb:27017/crudapp?authSource=admin
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run dev
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Debug port
+
+  # Override for development with Angular CLI
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/dist
+    ports:
+      - "4200:4200"  # Angular dev server port
+    command: ng serve --host 0.0.0.0 --port 4200 --disable-host-check
+    environment:
+      NODE_ENV: development
+
+  # Development MongoDB with exposed port for direct access
+  mongodb:
+    ports:
+      - "27017:27017"
